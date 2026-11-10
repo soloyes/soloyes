@@ -13,28 +13,24 @@
   <img src="https://img.shields.io/badge/ITIL-PM-39e6c8?style=for-the-badge" alt="ITIL"/>
 </p>
 
-### 👨‍🚀 About
+### About
 
-- 🛰️ **VP Customer Support** at [dxFeed](https://dxfeed.com): market data, trading infrastructure, crisis management
-- ☕ **Java** by trade
-- 🎮 **Indie game dev**: made [Buran-19](https://github.com/soloyes/buran-19), the game this banner is drawn from
-- 🧊 **3D obsessed**
-- 🤖 **AI engineering**: agents, LLM tooling, automation
-- 🤓 Geek
+I run Customer Support at [dxFeed](https://dxfeed.com) as VP: market data, trading infrastructure, crisis management.
+Java by trade. On the side I make games; [Buran-19](https://github.com/soloyes/buran-19) is mine, and the banner above is drawn from its sprites.
+I am into 3D more than is healthy, I build agents, LLM tooling and automation, and I am a geek in general.
 
-### 🚀 Featured: Buran-19
+### Buran-19
 
 <a href="https://github.com/soloyes/buran-19">
   <img src="assets/buran-gameplay.jpg" alt="Buran-19 gameplay" width="100%"/>
 </a>
 
-My indie space arcade on **libGDX** (Android, iOS, Desktop). You fly the Buran shuttle, pull stranded astronauts in with a tractor beam,
-dodge asteroids, homing rockets, anomalies and black holes, and try to survive as long as the fuel lasts.
-The pixel-art banner at the top of this page is drawn from the game's own sprites.
+A space arcade on libGDX for Android, iOS and desktop. You fly the Buran shuttle, pull stranded astronauts in with the tractor beam,
+burn asteroids with the laser, fire rockets at anomalies and stay away from black holes. The run ends when the fuel does.
 
-**[→ Source code, screenshots and build instructions](https://github.com/soloyes/buran-19)**
+[Source code, screenshots and build instructions](https://github.com/soloyes/buran-19)
 
-### 🛰️ Other projects
+### Other projects
 
 | Project | What it is |
 |---|---|
@@ -44,7 +40,7 @@ The pixel-art banner at the top of this page is drawn from the game's own sprite
 | [tic-tac-toe](https://github.com/soloyes/tic-tac-toe) | Tic-tac-toe with an unbeatable minimax AI (alpha-beta), Swing UI and console mode |
 | [OpenShuttle](https://github.com/soloyes/OpenShuttle) | My first libGDX game, the prototype that grew into Buran-19 |
 
-### 📊 Stats
+### Stats
 
 <p align="center">
   <img src="https://streak-stats.demolab.com?user=soloyes&theme=tokyonight&hide_border=true&background=0b0720&ring=6a5cff&fire=39e6c8&currStreakNum=7fffe8" alt="GitHub streak"/>
