@@ -41,8 +41,13 @@ The banner at the top of this page is drawn from the game's own sprites.
 ### 📊 Stats
 
 <p align="center">
-  <img height="165" src="https://github-readme-stats.vercel.app/api?username=soloyes&show_icons=true&theme=tokyonight&hide_border=true&bg_color=0b0720&title_color=7fffe8&icon_color=6a5cff&include_all_commits=true" alt="GitHub stats"/>
-  <img height="165" src="https://github-readme-stats.vercel.app/api/top-langs/?username=soloyes&layout=compact&theme=tokyonight&hide_border=true&bg_color=0b0720&title_color=7fffe8" alt="Top languages"/>
+  <img src="https://streak-stats.demolab.com?user=soloyes&theme=tokyonight&hide_border=true&background=0b0720&ring=6a5cff&fire=39e6c8&currStreakNum=7fffe8" alt="GitHub streak"/>
+</p>
+
+<p align="center">
+  <img height="160" src="profile-summary-card-output/tokyonight/1-repos-per-language.svg" alt="Repos per language"/>
+  <img height="160" src="profile-summary-card-output/tokyonight/2-most-commit-language.svg" alt="Most commit language"/>
+  <img height="160" src="profile-summary-card-output/tokyonight/3-stats.svg" alt="Stats"/>
 </p>
 
 <p align="center">
