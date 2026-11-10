@@ -206,6 +206,87 @@ ASTEROIDS = [  # kind, y0, y1, crossings per loop, size, rot dir
 
 BX, BY = 293, 85
 
+# ---------------- anomalies & rockets (shuttle fires homing rockets at anomalies) ----------------
+ANOM_SHEETS = {k: (load(k), cols, rows) for k, cols, rows in
+               (("radiation", 4, 4), ("electric", 4, 4), ("magnetic", 4, 4), ("corrosive", 4, 3))}
+
+@lru_cache(maxsize=None)
+def anom(kind, fr, size):
+    sh, cols, rows = ANOM_SHEETS[kind]
+    fw, fh = sh.width // cols, sh.height // rows
+    fr %= cols * rows
+    cx, cy = fr % cols, fr // cols
+    m = 0.18  # crop empty margins so the anomaly core reads at pixel size
+    return pixelize(sh.crop((int(cx * fw + fw * m), int(cy * fh + fh * m), int(cx * fw + fw * (1 - m)), int(cy * fh + fh * (1 - m)))), size, 10, True)
+
+# kind, x, y, size, launch time (fraction of loop), respawn time
+ANOMALIES = [("radiation", 128, 98, 26, 0.16, 0.62), ("magnetic", 214, 100, 26, 0.40, 0.90),
+             ("electric", 262, 26, 26, 0.66, 0.97), ("corrosive", 52, 99, 24, 0.11, 0.45)]
+
+def anom_pos(a, f):
+    kind, x, y, size, *_ = a
+    return x + 2 * math.sin(2 * math.pi * f / 96 + x), y + 2 * math.cos(2 * math.pi * f / 64 + y)
+
+def simulate_rocket(a):
+    """Launch from the shuttle along its heading, steer toward the anomaly like Rocket.update() in the game."""
+    tl = a[4]
+    x, y = path(tl); ang = math.radians(angle(tl))
+    vx, vy = 70 * math.cos(ang), 70 * math.sin(ang)
+    f0 = int(round(tl * NF)); traj = []
+    f = f0
+    while f < f0 + NF // 2:
+        tx, ty = anom_pos(a, f % NF)
+        for _ in range(4):
+            dt = 1 / FPS / 4
+            dx, dy = tx - x, ty - y; d = math.hypot(dx, dy) or 1
+            sp = min(150, math.hypot(vx, vy) + 160 * dt)   # accelerate
+            dvx, dvy = dx / d * sp, dy / d * sp              # desired velocity toward target
+            k = min(1, 5.5 * dt)                             # steering strength
+            vx += (dvx - vx) * k; vy += (dvy - vy) * k
+            x += vx * dt; y += vy * dt
+        traj.append((f % NF, x, y, math.degrees(math.atan2(vy, vx))))
+        if math.hypot(tx - x, ty - y) < 5:
+            break
+        f += 1
+    return traj
+
+ROCKETS = []
+for a in ANOMALIES:
+    tr = simulate_rocket(a)
+    ROCKETS.append((a, {fr: (x, y, an) for fr, x, y, an in tr}, tr[-1][0]))
+
+def alive(a, f, hit_f):
+    resp = int(round(a[5] * NF)) % NF
+    # alive outside the window (hit_f, resp) on the circular timeline
+    if hit_f <= resp:
+        return not (hit_f < f < resp)
+    return resp <= f <= hit_f
+
+def explosion(img, x, y, k, seed):
+    rnd = random.Random(seed)
+    cols = [(255, 255, 255), (255, 246, 160), (255, 200, 70), (255, 120, 30), (200, 50, 30), (110, 35, 50)]
+    def chunk(px_, py_, c):
+        for ddx in (0, 1):
+            for ddy in (0, 1):
+                put(img, px_ + ddx, py_ + ddy, c)
+    if k < .4:  # white-hot core
+        r0 = 7 * (1 - k * 1.5)
+        for dy in range(-7, 8):
+            for dx in range(-7, 8):
+                d2 = dx * dx + dy * dy
+                if d2 <= r0 * r0:
+                    put(img, x + dx, y + dy, cols[0] if d2 < r0 * r0 * .3 else cols[1 + int(k * 5)])
+    if k < .5:  # shock ring
+        for dx, dy in circle_pts(int(4 + 22 * k)):
+            if (dx + dy) % 2 == 0:
+                put(img, x + dx, y + dy, cols[2])
+    for i in range(26):  # debris
+        a = rnd.uniform(0, 2 * math.pi); sp = rnd.uniform(8, 22)
+        r = sp * (1 - (1 - k) ** 2)
+        c = cols[min(int(k * 6) + (i % 2), 5)]
+        chunk(x + r * math.cos(a), y + r * math.sin(a), c)
+
+
 def frame(f):
     t = f / NF
     img = bg.copy()
@@ -226,6 +307,17 @@ def frame(f):
         rr = 50 * (1 - k) + 1; a = -2.6 * math.pi * k + 2.2
         size = max(4, int(14 * (1 - k * .8)))
         blit(img, spr("crate", size, qa(-720 * k, 15), 6), BX + rr * math.cos(a), BY + rr * .8 * math.sin(a))
+    # anomalies, homing rockets, explosions
+    for a, traj, hit_f in ROCKETS:
+        kind, ax_, ay_, size = a[0], *anom_pos(a, f), a[3]
+        resp_f = int(round(a[5] * NF)) % NF
+        if alive(a, f, hit_f):
+            since = (f - resp_f) % NF
+            sz = size if since >= 6 else max(4, int(size * (since + 1) / 7))
+            blit(img, anom(kind, f // 2, sz), ax_, ay_)
+        dt_hit = (f - hit_f) % NF
+        if dt_hit < 12:
+            explosion(img, ax_, ay_, dt_hit / 12, hash(kind) & 0xffff)
     # title
     tg = [(255, 255, 255), (255, 255, 255), (236, 232, 255), (214, 206, 255), (190, 180, 255), (160, 150, 250), (127, 255, 232)]
     text(img, TITLE, 14, 11, 2, tg, shadow=(40, 18, 90, 255))
@@ -263,11 +355,14 @@ def frame(f):
             for dx in range(-r, r + 1):
                 if dx * dx + dy * dy <= r * r and (i < 2 or (dx + dy + f) % 2 == 0):
                     put(img, x + dx, y + dy, (180, 172, 220) if i < 2 else (120, 110, 170))
-    # homing rocket
-    tr = t - 0.09
-    if tr > 0:
-        x, y = path(tr)
-        blit(img, spr("rocket", 20, qa(angle(tr)), 8), x, y)
+    # rockets in flight (launched by the shuttle)
+    for a, traj, hit_f in ROCKETS:
+        if f in traj and f != hit_f:
+            x, y, an = traj[f]
+            ar_ = math.radians(an)
+            for s_ in range(1, 5):
+                put(img, x - s_ * 2 * math.cos(ar_), y - s_ * 2 * math.sin(ar_), (255, 176, 46) if s_ < 2 else (150, 140, 190))
+            blit(img, spr("rocket", 14, qa(an, 15), 8), x, y)
     # shuttle
     x, y = path(t); a = angle(t); ar = math.radians(a)
     bx_, by_ = x - 13 * math.cos(ar), y - 13 * math.sin(ar)
@@ -300,4 +395,4 @@ def frame(f):
 
 for f in range(NF):
     frame(f).save(f"{OUTD}/f{f:03d}.png")
-print("frames", NF)
+print("frames", NF, [(a[0], int(round(a[4]*NF)), h) for a, tr, h in ROCKETS])
