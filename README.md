@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.gif" alt="Pixel-art Buran shuttle rescuing astronauts" width="100%"/>
+  <img src="assets/banner-pixel.gif" alt="Pixel-art Buran shuttle rescuing astronauts" width="100%"/>
 </p>
 
 <p align="center">
