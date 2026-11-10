@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="Buran shuttle rescuing astronauts" width="100%"/>
+  <img src="assets/banner.gif" alt="Pixel-art Buran shuttle rescuing astronauts" width="100%"/>
 </p>
 
 <p align="center">
@@ -7,14 +7,20 @@
   <img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java"/>
   <img src="https://img.shields.io/badge/libGDX-E74A45?style=for-the-badge&logo=android&logoColor=white" alt="libGDX"/>
   <img src="https://img.shields.io/badge/Kafka-231F20?style=for-the-badge&logo=apachekafka&logoColor=white" alt="Kafka"/>
+  <img src="https://img.shields.io/badge/AI%20Engineering-8A2BE2?style=for-the-badge&logo=anthropic&logoColor=white" alt="AI Engineering"/>
+  <img src="https://img.shields.io/badge/3D-F5792A?style=for-the-badge&logo=blender&logoColor=white" alt="3D"/>
   <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker"/>
   <img src="https://img.shields.io/badge/ITIL-PM-39e6c8?style=for-the-badge" alt="ITIL"/>
 </p>
 
 ### 👨‍🚀 About
 
-VP Customer Support and Head of Technical Support at [dxFeed](https://dxfeed.com): market data, trading infrastructure, crisis management and the people who keep it all running.
-Java by trade, ITIL and project management by necessity, game dev for fun.
+- 🛰️ **VP Customer Support** at [dxFeed](https://dxfeed.com): market data, trading infrastructure, crisis management
+- ☕ **Java** by trade
+- 🎮 **Indie game dev**: made [Buran-19](https://github.com/soloyes/buran-19), the game this banner is drawn from
+- 🧊 **3D obsessed**
+- 🤖 **AI engineering**: agents, LLM tooling, automation
+- 🤓 Geek
 
 ### 🚀 Featured: Buran-19
 
@@ -24,7 +30,7 @@ Java by trade, ITIL and project management by necessity, game dev for fun.
 
 My indie space arcade on **libGDX** (Android, iOS, Desktop). You fly the Buran shuttle, pull stranded astronauts in with a tractor beam,
 dodge asteroids, homing rockets, anomalies and black holes, and try to survive as long as the fuel lasts.
-The banner at the top of this page is drawn from the game's own sprites.
+The pixel-art banner at the top of this page is drawn from the game's own sprites.
 
 **[→ Source code, screenshots and build instructions](https://github.com/soloyes/buran-19)**
 
