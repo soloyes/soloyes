@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://dxfeed.com"><img src="https://img.shields.io/badge/dxFeed-Technical%20Manager-6a5cff?style=for-the-badge" alt="dxFeed"/></a>
+  <a href="https://dxfeed.com"><img src="https://img.shields.io/badge/dxFeed-VP%20Customer%20Support-6a5cff?style=for-the-badge" alt="dxFeed"/></a>
   <img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java"/>
   <img src="https://img.shields.io/badge/libGDX-E74A45?style=for-the-badge&logo=android&logoColor=white" alt="libGDX"/>
   <img src="https://img.shields.io/badge/Kafka-231F20?style=for-the-badge&logo=apachekafka&logoColor=white" alt="Kafka"/>
@@ -13,7 +13,7 @@
 
 ### 👨‍🚀 About
 
-Technical manager at [dxFeed](https://dxfeed.com): market data, trading infrastructure and the people who keep it running.
+VP Customer Support and Head of Technical Support at [dxFeed](https://dxfeed.com): market data, trading infrastructure, crisis management and the people who keep it all running.
 Java by trade, ITIL and project management by necessity, game dev for fun.
 
 ### 🚀 Featured: Buran-19
