@@ -40,7 +40,6 @@ The pixel-art banner at the top of this page is drawn from the game's own sprite
 |---|---|
 | [buran-19](https://github.com/soloyes/buran-19) | Space arcade on libGDX, 595 commits of history |
 | [zookeeper-kafka-mesh](https://github.com/soloyes/zookeeper-kafka-mesh) | Full-mesh controller for ZooKeeper and Kafka nodes in Docker |
-| [JavaMesa](https://github.com/soloyes/JavaMesa) | Multithreaded client-server messenger on JavaFX |
 | [OpenShuttle](https://github.com/soloyes/OpenShuttle) | My first libGDX game, the prototype that grew into Buran-19 |
 | [JavaTrans2Quik](https://github.com/soloyes/JavaTrans2Quik) | Java wrapper for Trans2Quik.dll (QUIK trading platform) |
 
