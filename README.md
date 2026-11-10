@@ -38,10 +38,11 @@ The pixel-art banner at the top of this page is drawn from the game's own sprite
 
 | Project | What it is |
 |---|---|
-| [buran-19](https://github.com/soloyes/buran-19) | Space arcade on libGDX, 595 commits of history |
-| [zookeeper-kafka-mesh](https://github.com/soloyes/zookeeper-kafka-mesh) | Full-mesh controller for ZooKeeper and Kafka nodes in Docker |
+| [buran-19](https://github.com/soloyes/buran-19) | Space arcade on libGDX for Android, iOS and desktop, 595 commits of history |
+| [zookeeper-kafka-mesh](https://github.com/soloyes/zookeeper-kafka-mesh) | Scale a ZooKeeper + Kafka cluster in Docker node by node with zero downtime: rolling config push, health checks, automatic rollback |
+| [JavaTrans2Quik](https://github.com/soloyes/JavaTrans2Quik) | quik-bridge: Java connector service for the QUIK trading terminal (orders and trades stream, auto-reconnect) on a JNA wrapper |
+| [tic-tac-toe](https://github.com/soloyes/tic-tac-toe) | Tic-tac-toe with an unbeatable minimax AI (alpha-beta), Swing UI and console mode |
 | [OpenShuttle](https://github.com/soloyes/OpenShuttle) | My first libGDX game, the prototype that grew into Buran-19 |
-| [JavaTrans2Quik](https://github.com/soloyes/JavaTrans2Quik) | Java wrapper for Trans2Quik.dll (QUIK trading platform) |
 
 ### 📊 Stats
 
