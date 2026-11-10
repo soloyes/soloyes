@@ -201,8 +201,28 @@ for tc, idx, off in SPEC:
     sx, sy = path(tc)
     ASTRO_POS.append((tc, idx, sx + 10, min(max(sy + off, 18), 98)))
 
-ASTEROIDS = [  # kind, y0, y1, crossings per loop, size, rot dir
-    ("m", 14, 40, 1, 20, 1), ("n", 100, 70, 1, 16, -1), ("m", 63, 100, 2, 12, 1)]
+ASTEROIDS = [  # kind, y at right edge, y at left edge, size, phase (crossing start), rot dir
+    ("m", 40, 30, 20, 0.30, 1), ("n", 100, 64, 18, 0.55, -1), ("m", 70, 110, 14, 0.05, 1), ("n", 20, 56, 16, 0.78, -1)]
+LASER_RANGE, BURN = 46, 12
+
+def ast_pos(a, j):
+    kind, y0, y1, size, ph, d = a
+    u = j / NF
+    return W + 20 - (W + 40) * u, y0 + (y1 - y0) * u
+
+def plan_asteroid(a):
+    """Walk one crossing; lock the laser when the shuttle passes within range, burn, then split (Ray.laser + boom)."""
+    fs = int(a[4] * NF)
+    for j in range(NF):
+        f = (fs + j) % NF
+        x, y = ast_pos(a, j)
+        sx, sy = path(f / NF)
+        if 12 < sx < W - 12 and 8 < x < W - 30 and math.hypot(x - sx, y - sy) < LASER_RANGE:
+            return fs, j, j + BURN
+    return fs, None, None
+
+AST_PLAN = [(a,) + plan_asteroid(a) for a in ASTEROIDS]
+
 
 BX, BY = 293, 85
 
@@ -267,8 +287,8 @@ def radiation_sprite(fr, size):
     return out
 
 # kind, x, y, size, launch time (fraction of loop), respawn time
-ANOMALIES = [("radiation", 128, 98, 26, 0.16, 0.62), ("magnetic", 214, 100, 26, 0.40, 0.90),
-             ("electric", 262, 26, 26, 0.66, 0.97), ("corrosive", 52, 99, 24, 0.11, 0.45)]
+ANOMALIES = [("radiation", 44, 60, 26, 0.16, 0.62), ("magnetic", 130, 103, 26, 0.33, 0.80),
+             ("electric", 215, 82, 26, 0.52, 0.97), ("radiation", 296, 24, 24, 0.72, 0.15)]
 
 def anom_pos(a, f):
     kind, x, y, size, *_ = a
@@ -339,10 +359,27 @@ def frame(f):
     img = bg.copy()
     draw_stars(img, f)
     # asteroids & fuel box
-    for kind, y0, y1, k, size, d in ASTEROIDS:
-        u = (t * k + size / 50) % 1
-        x = W + 20 - (W + 40) * u; y = y0 + (y1 - y0) * u
-        blit(img, ast(kind, (f // 3 * d) % 64, size), x, y)
+    lasers = []
+    for a, fs, jl, je in AST_PLAN:
+        kind, size, d = a[0], a[3], a[5]
+        j = (f - fs) % NF
+        if je is None or j < je:
+            x, y = ast_pos(a, j)
+            blit(img, ast(kind, (f // 3 * d) % 64, size), x, y)
+            if jl is not None and jl <= j < je:
+                lasers.append((x, y, size, (j - jl) / BURN))
+        elif j < je + 30:  # split into fragments + colour spray
+            x, y = ast_pos(a, je); k = j - je
+            rnd = random.Random(int(a[4] * 1000))
+            for i in range(4):
+                ang = rnd.uniform(0, 2 * math.pi); sp = rnd.uniform(1.0, 2.0)
+                fx, fy = x + math.cos(ang) * sp * k, y + math.sin(ang) * sp * k
+                blit(img, ast(kind, (f * (i + 1) // 2) % 64, 7 if i % 2 else 9), fx, fy)
+            if k < 9:
+                for i in range(22):
+                    ang = rnd.uniform(0, 2 * math.pi); r = rnd.uniform(3, 6) * k * 0.9
+                    c = [(255, 255, 255), (220, 214, 240), (170, 160, 200), (110, 100, 150)][min(k // 2, 3)]
+                    put(img, x + r * math.cos(ang), y + r * math.sin(ang), c)
     u = (t + .4) % 1
     blit(img, spr("fuel", 14, qa(360 * t * 2, 15), 6), -15 + (W + 30) * u, 108 - 25 * u)
     # black hole
@@ -364,7 +401,7 @@ def frame(f):
             blit(img, radiation_sprite(f, sz) if kind == 'radiation' else anom(kind, f // 2, sz), ax_, ay_)
         dt_hit = (f - hit_f) % NF
         if dt_hit < 12:
-            explosion(img, ax_, ay_, dt_hit / 12, hash(kind) & 0xffff)
+            explosion(img, ax_, ay_, dt_hit / 12, a[1] * 7 + a[2])
     # title
     tg = [(255, 255, 255), (255, 255, 255), (236, 232, 255), (214, 206, 255), (190, 180, 255), (160, 150, 250), (127, 255, 232)]
     text(img, TITLE, 14, 11, 2, tg, shadow=(40, 18, 90, 255))
@@ -410,6 +447,19 @@ def frame(f):
             for s_ in range(1, 5):
                 put(img, x - s_ * 2 * math.cos(ar_), y - s_ * 2 * math.sin(ar_), (255, 176, 46) if s_ < 2 else (150, 140, 190))
             blit(img, spr("rocket", 14, qa(an, 15), 8), x, y)
+    # laser beams from the shuttle to asteroids being burned
+    sx, sy = path(t)
+    for x, y, size, k in lasers:
+        pts = line_pts(sx, sy, x, y)
+        for i, (lx, ly) in enumerate(pts):
+            if (i + f) % 3:
+                put(img, lx, ly, (255, 120, 255))
+            else:
+                put(img, lx, ly, (160, 60, 220))
+        rr = int(size * .55 * (1 - .4 * k)) + 2
+        for i, (dx, dy) in enumerate(circle_pts(rr)):
+            if (i + f * 2) % 4 == 0:
+                put(img, x + dx, y + dy, (255, 200, 255) if k > .6 else (220, 120, 255))
     # shuttle
     x, y = path(t); a = angle(t); ar = math.radians(a)
     bx_, by_ = x - 13 * math.cos(ar), y - 13 * math.sin(ar)
@@ -442,4 +492,5 @@ def frame(f):
 
 for f in range(NF):
     frame(f).save(f"{OUTD}/f{f:03d}.png")
+print("asteroids", [(a[0], fs, jl, je) for a, fs, jl, je in AST_PLAN])
 print("frames", NF, [(a[0], int(round(a[4]*NF)), h) for a, tr, h in ROCKETS])
