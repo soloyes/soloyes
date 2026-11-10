@@ -219,6 +219,53 @@ def anom(kind, fr, size):
     m = 0.18  # crop empty margins so the anomaly core reads at pixel size
     return pixelize(sh.crop((int(cx * fw + fw * m), int(cy * fh + fh * m), int(cx * fw + fw * (1 - m)), int(cy * fh + fh * (1 - m)))), size, 10, True)
 
+
+def radiation_sprite(fr, size):
+    """Hand-made pixel radiation anomaly: segmented rotating trefoil, pulsing core, dithered halo, sparks."""
+    R = size // 2
+    im = Image.new("RGBA", (size + 2, size + 2), (0, 0, 0, 0))
+    px = im.load(); c = R + 1
+    rot = (fr * 7.5) % 120            # trefoil rotation, degrees
+    pulse = (fr // 3) % 4
+    DARK, MID, BRIGHT, HOT = (14, 70, 40), (30, 160, 70), (70, 255, 110), (210, 255, 170)
+    for y in range(size + 2):
+        for x in range(size + 2):
+            dx, dy = x - c, y - c; r = math.hypot(dx, dy)
+            if r > R + .5:
+                continue
+            a = (math.degrees(math.atan2(dy, dx)) - rot) % 120
+            col = None
+            # halo: ordered-dither falloff
+            if r > R - 3 and BAYER[y % 4][x % 4] < 16 * (R + .5 - r) / 4:
+                col = DARK
+            # blades: three 50-degree sectors, segmented into rings
+            if a < 50 and 3.5 < r < R - 1:
+                ring = int(r - 3.5) % 3
+                if ring != 2:
+                    col = BRIGHT if (a < 8 or a > 42) else MID
+                    if ring == 1 and 8 <= a <= 42:
+                        col = (40, 200, 90)
+            # core
+            if r <= 2.6 + (pulse == 0) * .6:
+                col = HOT if r < 1.5 else BRIGHT
+            if col:
+                px[x, y] = col + (255,)
+    # outline around opaque pixels
+    out = Image.new("RGBA", im.size, (0, 0, 0, 0)); op = out.load()
+    for y in range(im.height):
+        for x in range(im.width):
+            if px[x, y][3] == 0 and any(0 <= x + ex < im.width and 0 <= y + ey < im.height and px[x + ex, y + ey][3]
+                                        and px[x + ex, y + ey][:3] != DARK for ex, ey in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                op[x, y] = OUTLINE
+    out.alpha_composite(im)
+    # orbiting sparks
+    for k in range(3):
+        ang = math.radians(fr * 11 + k * 120)
+        sx, sy = int(round(c + (R - 1) * math.cos(ang))), int(round(c + (R - 1) * math.sin(ang)))
+        if 0 <= sx < out.width and 0 <= sy < out.height:
+            out.putpixel((sx, sy), HOT + (255,))
+    return out
+
 # kind, x, y, size, launch time (fraction of loop), respawn time
 ANOMALIES = [("radiation", 128, 98, 26, 0.16, 0.62), ("magnetic", 214, 100, 26, 0.40, 0.90),
              ("electric", 262, 26, 26, 0.66, 0.97), ("corrosive", 52, 99, 24, 0.11, 0.45)]
@@ -314,7 +361,7 @@ def frame(f):
         if alive(a, f, hit_f):
             since = (f - resp_f) % NF
             sz = size if since >= 6 else max(4, int(size * (since + 1) / 7))
-            blit(img, anom(kind, f // 2, sz), ax_, ay_)
+            blit(img, radiation_sprite(f, sz) if kind == 'radiation' else anom(kind, f // 2, sz), ax_, ay_)
         dt_hit = (f - hit_f) % NF
         if dt_hit < 12:
             explosion(img, ax_, ay_, dt_hit / 12, hash(kind) & 0xffff)
