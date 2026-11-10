@@ -158,10 +158,26 @@ def draw_stars(img, f):
                         px[X, Y] = tuple(v // 2 for v in c) + (255,)
 
 # ---------------- motion ----------------
-def path(t):
-    x = -55 + 445 * t
+BOOST_T = 0.76   # after this the shuttle hits the throttle and leaves the screen
+
+def _cruise(t):
+    x = -55 + 375 * t
     y = 71 + 19 * math.sin(2 * math.pi * (t * 1.15 + 0.05)) + 6 * math.sin(2 * math.pi * t * 3.1)
     return x, y
+
+def path(t):
+    if t <= BOOST_T:
+        return _cruise(t)
+    x0, y0 = _cruise(BOOST_T); x1, y1 = _cruise(BOOST_T + 1e-4)
+    vy = (y1 - y0) / 1e-4
+    d = t - BOOST_T
+    return x0 + 375 * d + 12000 * d * d, y0 + vy * d - 900 * d * d
+
+def boost(t):
+    """Speed relative to cruise speed (1 = cruising)."""
+    if t <= BOOST_T:
+        return 1.0
+    return (375 + 24000 * (t - BOOST_T)) / 375
 
 def angle(t, dt=0.004):
     (x0, y0), (x1, y1) = path(max(t - dt, 0)), path(min(t + dt, 1))
@@ -464,8 +480,16 @@ def frame(f):
     x, y = path(t); a = angle(t); ar = math.radians(a)
     bx_, by_ = x - 13 * math.cos(ar), y - 13 * math.sin(ar)
     rnd = random.Random(f)
+    bst = min(boost(t), 6)
+    if bst > 1.2:  # speed streaks
+        for k_, off in enumerate((-9, -5, 0, 5, 9)):
+            ln_ = int((10 + 6 * (k_ % 2)) * bst ** .8)
+            ox, oy = x - 16 * math.cos(ar) - off * math.sin(ar), y - 16 * math.sin(ar) + off * math.cos(ar)
+            for s_ in range(ln_):
+                if s_ % 4 != 3:
+                    put(img, ox - s_ * math.cos(ar), oy - s_ * math.sin(ar), (230, 240, 255) if s_ < ln_ // 3 else (120, 150, 230))
     for j, col in enumerate(((255, 61, 0), (255, 176, 46), (255, 246, 192))):
-        ln = 6 - 2 * j + rnd.randint(0, 2)
+        ln = int((6 - 2 * j + rnd.randint(0, 2)) * (bst ** .9))
         for s in range(ln):
             put(img, bx_ - s * math.cos(ar), by_ - s * math.sin(ar), col)
             if j == 0:
